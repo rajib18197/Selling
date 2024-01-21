@@ -3,6 +3,11 @@ import AppLayout from "./ui/AppLayout";
 import Counter from "./ui/Counter";
 import Messenger from "./ui/Messenger";
 import Todo from "./ui/Todo";
+import Dragabble from "./ui/Dragabble";
+import { HTML5Backend } from "react-dnd-html5-backend";
+import { DndProvider } from "react-dnd";
+import Test from "./ui/Test";
+import TasksApp from "./ui/TasksApp";
 
 export default function App() {
   const [isPlayerA, setIsPlayerA] = useState(false);
@@ -28,11 +33,17 @@ export default function App() {
       <button
         className="p-1 bg-pink-600 w-max"
         onClick={() => setIsPlayerA((cur) => !cur)}
-      >
+      > 
         Change Player
       </button> */}
       {/* <Messenger /> */}
-      <Todo />
+      <TasksApp />
+      {/* <DndProvider backend={HTML5Backend}>
+        <Dragabble text={"Hello React"} />
+      </DndProvider>
+
+      <h2>React JS</h2> */}
+      {/* <Test /> */}
     </div>
   );
 }

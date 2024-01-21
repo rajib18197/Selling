@@ -1,65 +1,29 @@
 import { useState } from "react";
-
-const data = [
-  { id: 1, text: "Learn React JS", done: true },
-  { id: 2, text: "Learn Next JS", done: false },
-  { id: 3, text: "Learn Node JS", done: false },
-];
-
-const getNextId = function (data) {
-  const maxId = data.reduce(
-    (acc, cur) => (acc > cur.id ? acc : cur.id),
-    data[0].id
-  );
-  console.log(maxId);
-
-  return maxId + 1;
-};
+import { useTasks, useTasksDispatch, useTasksR } from "../context/TasksContext";
 
 export default function Todo() {
-  const [tasks, setTasks] = useState(data);
-
-  function handleAddTask(text) {
-    setTasks((curTasks) => [
-      ...curTasks,
-      { id: getNextId(curTasks), text, done: false },
-    ]);
-  }
-
-  function handleChangeTask(newTask) {
-    setTasks((curTasks) =>
-      curTasks.map((task) =>
-        task.id === newTask.id ? { ...newTask } : { ...task }
-      )
-    );
-  }
-
-  function handleDeleteTask(id) {
-    setTasks((curTasks) => curTasks.filter((task) => task.id !== id));
-  }
-
+  console.log(444444);
   return (
     <div>
-      <AddTask onAddTask={handleAddTask} />
+      <AddTask />
 
-      <TaskList
-        tasks={tasks}
-        onEditTask={handleChangeTask}
-        onDeleteTask={handleDeleteTask}
-      />
+      <TaskList />
     </div>
   );
 }
 
-function AddTask({ onAddTask }) {
+function AddTask() {
   const [value, setValue] = useState("");
+  // const dispatch = useTasksDispatch();
+  const { dispatch } = useTasksR();
+  console.log(value, 222);
 
   function handleSubmit(e) {
     e.preventDefault();
     if (!value) return;
 
-    onAddTask(value);
-    setValue("");
+    dispatch({ type: "addTask", payload: value });
+    // setValue("");
   }
 
   return (
@@ -74,31 +38,38 @@ function AddTask({ onAddTask }) {
   );
 }
 
-function TaskList({ tasks, onEditTask, onDeleteTask }) {
+function TaskList() {
+  // const tasks = useTasks();
+  const { tasks } = useTasksR();
+  console.log(tasks);
+
   return (
     <ul>
       {tasks.map((task) => (
-        <Task
-          key={task.id}
-          task={task}
-          onEditTask={onEditTask}
-          onDeleteTask={onDeleteTask}
-        />
+        <Task key={task.id} task={task} />
       ))}
     </ul>
   );
 }
 
-function Task({ task, onEditTask, onDeleteTask }) {
+function Task({ task }) {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(task.text);
+
+  // const dispatch = useTasksDispatch();
+  const { dispatch } = useTasksR();
 
   return (
     <li className="bg-red-400 flex gap-2 items-center mb-2">
       <input
         type="checkbox"
         checked={task.done}
-        onChange={(e) => onEditTask({ ...task, done: e.target.checked })}
+        onChange={(e) =>
+          dispatch({
+            type: "editTask",
+            payload: { ...task, done: e.target.checked },
+          })
+        }
       />
       {/* Input Or Text */}
       {isEditing ? (
@@ -108,7 +79,7 @@ function Task({ task, onEditTask, onDeleteTask }) {
           onChange={(e) => setValue(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              onEditTask({ ...task, text: value });
+              dispatch({ type: "editTask", payload: { ...task, text: value } });
               setIsEditing(false);
             }
           }}
@@ -120,7 +91,7 @@ function Task({ task, onEditTask, onDeleteTask }) {
         disabled={task.done}
         onClick={() => {
           if (isEditing) {
-            onEditTask({ ...task, text: value });
+            dispatch({ type: "editTask", payload: { ...task, text: value } });
             setIsEditing(false);
           } else {
             setIsEditing(true);
@@ -130,7 +101,11 @@ function Task({ task, onEditTask, onDeleteTask }) {
         {isEditing ? "Save" : "Edit"}
       </button>
 
-      <button onClick={() => onDeleteTask(task.id)}>Delete</button>
+      <button
+        onClick={() => dispatch({ type: "deleteTask", payload: task.id })}
+      >
+        Delete
+      </button>
     </li>
   );
 }
